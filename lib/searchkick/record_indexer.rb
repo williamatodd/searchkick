@@ -46,7 +46,7 @@ module Searchkick
           record.id.to_s,
           method_name ? method_name.to_s : nil,
           routing: routing
-        )
+        ) if record.reindex_on_create?
       else # bulk, inline/true/nil
         reindex_record(method_name)
 

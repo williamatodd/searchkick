@@ -94,6 +94,13 @@ module Searchkick
           true
         end unless method_defined?(:should_index?)
 
+        def reindex_on_create?
+          return true unless respond_to?(:updated_at)
+          return true if (created_at != updated_at) && should_index?
+
+          false
+        end
+
         if defined?(Cequel) && self < Cequel::Record && !method_defined?(:destroyed?)
           def destroyed?
             transient?

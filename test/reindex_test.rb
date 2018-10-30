@@ -74,6 +74,20 @@ class ReindexTest < Minitest::Test
     assert_equal 1, index.total_docs
   end
 
+  def test_async_enqueue_if_reindex_on_create
+    skip unless defined?(ActiveJob)
+
+    Searchkick.callbacks(false) do
+      store_names ["DO NOT INDEX"]
+    end
+    reindex = Product.reindex(async: true)
+    assert_search "product", [], conversions: false
+
+    index = Searchkick::Index.new(reindex[:index_name])
+    index.refresh
+    assert_equal 0, index.total_docs
+  end
+
   def test_refresh_interval
     reindex = Product.reindex(refresh_interval: "30s", async: true, import: false)
     index = Searchkick::Index.new(reindex[:index_name])
